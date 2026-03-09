@@ -1,0 +1,26 @@
+NUCLEAR RECURSIVE Scan | Start: 19:07:35 UTC | Workers: 200
+Looking for articles from the last 24 hours
+Parquet cache enabled: True, max age: 1h
+Scanning robots.txt for sitemaps...
+Scanning:   0%|          | 0/320 [00:00<?, ?it/s]Scanning:  10%|█         | 32/320 [00:00<00:05, 53.58it/s]
+  Scanned 50/320 domains, found 101 sitemaps so far...
+Scanning:  18%|█▊        | 59/320 [00:01<00:05, 50.93it/s]Scanning:  27%|██▋       | 85/320 [00:01<00:05, 42.05it/s]
+  Scanned 100/320 domains, found 401 sitemaps so far...
+Scanning:  38%|███▊      | 122/320 [00:02<00:03, 52.60it/s]
+  Scanned 150/320 domains, found 537 sitemaps so far...
+Scanning:  51%|█████     | 162/320 [00:02<00:02, 61.17it/s]
+  Scanned 200/320 domains, found 646 sitemaps so far...
+Scanning:  62%|██████▎   | 200/320 [00:03<00:01, 65.71it/s]Scanning:  73%|███████▎  | 234/320 [00:03<00:01, 64.23it/s]
+  Scanned 250/320 domains, found 813 sitemaps so far...
+Scanning:  83%|████████▎ | 267/320 [00:04<00:00, 63.17it/s]
+  Scanned 300/320 domains, found 1081 sitemaps so far...
+Scanning:  94%|█████████▍| 300/320 [00:05<00:00, 42.93it/s]Scanning:  94%|█████████▍| 300/320 [00:20<00:00, 42.93it/s]Scanning:  97%|█████████▋| 311/320 [00:27<00:02,  3.76it/s]Scanning:  98%|█████████▊| 313/320 [00:27<00:01,  3.76it/s]Scanning:  98%|█████████▊| 313/320 [00:40<00:01,  3.76it/s]Scanning: 100%|██████████| 320/320 [00:46<00:00,  1.71it/s]Scanning: 100%|██████████| 320/320 [00:46<00:00,  6.95it/s]
+
+Found 1081 sitemaps from robots.txt
+Starting to process 1081 sitemaps...
+
+Level 0: processing 1081 sitemaps...
+L0:   0%|          | 0/1081 [00:00<?, ?it/s]L0:  41%|████      | 438/1081 [00:01<00:01, 436.19it/s]L0:  81%|████████  | 875/1081 [00:03<00:00, 258.86it/s]L0:  81%|████████  | 875/1081 [00:22<00:00, 258.86it/s]L0:  99%|█████████▉| 1072/1081 [00:30<00:00, 24.43it/s]L0:  99%|█████████▉| 1072/1081 [00:42<00:00, 24.43it/s]L0: 100%|█████████▉| 1080/1081 [01:06<00:00,  9.09it/s]L0: 100%|██████████| 1081/1081 [01:09<00:00,  8.45it/s]L0: 100%|██████████| 1081/1081 [01:09<00:00, 15.62it/s]
+Level 0 done - stats: {'cached': 25, 'index': 414, 'items': 74, 'errors': 53}, next batch: 102740 sitemaps
+
+Level 1: processing 102740 sitemaps...
