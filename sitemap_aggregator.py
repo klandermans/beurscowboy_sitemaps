@@ -39,7 +39,6 @@ raw_data = list(set(raw_data))
 
 # SETTINGS
 NOW = datetime.now(timezone.utc)
-CACHE_SITEMAPS = "sitemaps_list.txt"
 CACHE_METADATA = "cache_metadata.json"
 
 # Optimized Nuclear Session
@@ -62,7 +61,7 @@ def clean_xml_text(b_text):
     if not b_text: return ""
     return b_text.decode('utf-8', 'ignore').strip().replace('<![CDATA[', '').replace(']]>', '').replace('&', '&amp;')
 
-# Regex for speed
+# Regex
 RE_SITEMAPINDEX = re.compile(b'<sitemapindex', re.I)
 RE_LOC = re.compile(b'<loc>(.*?)</loc>', re.I | re.DOTALL)
 RE_LASTMOD = re.compile(b'<lastmod>(.*?)</lastmod>', re.I | re.DOTALL)
@@ -83,19 +82,12 @@ def fetch_sitemap_content(url, cutoff, metadata_cache):
         
         if RE_SITEMAPINDEX.search(content):
             subs = []
-            for block in RE_SITEMAP_BLOCK.finditer(content):
-                data = block.group(1)
-                loc_match = RE_LOC.search(data)
-                if loc_match:
-                    loc = loc_match.group(1).decode('utf-8', 'ignore').strip()
-                    lm_match = RE_LASTMOD.search(data)
-                    if lm_match:
-                        lm = parse_date(lm_match.group(1).decode('utf-8', 'ignore'))
-                        if lm and lm < cutoff: continue
-                    subs.append(loc)
-            if not subs:
-                for loc_b in RE_LOC.findall(content):
-                    subs.append(loc_b.decode('utf-8', 'ignore').strip())
+            # BE AGGRESSIVE: Follow almost all sitemaps found
+            for loc_b in RE_LOC.findall(content):
+                loc = loc_b.decode('utf-8', 'ignore').strip()
+                # Skip common garbage to save time
+                if any(w in loc.lower() for w in ['image', 'video', 'tag', 'category', 'author']): continue
+                subs.append(loc)
             return ("index", (subs, new_lmod))
         
         items = []
@@ -104,7 +96,8 @@ def fetch_sitemap_content(url, cutoff, metadata_cache):
             lm_match = RE_LASTMOD.search(data)
             lm_str = lm_match.group(1).decode('utf-8', 'ignore').strip() if lm_match else ""
             dt = parse_date(lm_str)
-            if dt and cutoff <= dt <= (NOW + timedelta(minutes=10)):
+            # If date is within last 24h OR missing (we check headline anyway)
+            if not dt or (cutoff <= dt <= (NOW + timedelta(minutes=10))):
                 title_m = re.search(b'<news:title>(.*?)</news:title>', data, re.I | re.S)
                 if not title_m: title_m = re.search(b'<title>(.*?)</title>', data, re.I | re.S)
                 if title_m:
@@ -123,7 +116,7 @@ def fetch_sitemap_content(url, cutoff, metadata_cache):
 
 def main():
     cutoff = NOW - timedelta(hours=24)
-    print(f"NUCLEAR RECURSIVE HEADLINE Scan | Workers: 200")
+    print(f"NUCLEAR AGGRESSIVE Scan | Start: {NOW.strftime('%H:%M:%S')} UTC")
     
     metadata_cache = {}
     if os.path.exists(CACHE_METADATA):
@@ -131,47 +124,42 @@ def main():
             with open(CACHE_METADATA, 'r') as f: metadata_cache = json.load(f)
         except: pass
 
+    # ALWAYS SCAN robots.txt
+    print("Broad discovery from robots.txt...")
     discovery_queue = set()
-    if os.path.exists(CACHE_SITEMAPS):
-        with open(CACHE_SITEMAPS, "r") as f:
-            for line in f: discovery_queue.add(line.strip())
-    
-    if not discovery_queue:
-        print("Discovering from robots.txt...")
-        def scan_robots(d):
-            try:
-                r = session.get(f"https://{d}/robots.txt", timeout=3, headers=headers_base)
-                return re.findall(r'^Sitemap:\s*(.*)', r.text, re.I | re.M)
-            except: return []
-        with ThreadPoolExecutor(max_workers=100) as ex:
-            for res in ex.map(scan_robots, raw_data):
-                for s in res: discovery_queue.add(s.strip())
+    def scan_robots(d):
+        try:
+            r = session.get(f"https://{d}/robots.txt", timeout=3, headers=headers_base)
+            return re.findall(r'^Sitemap:\s*(.*)', r.text, re.I | re.M)
+        except: return []
+    with ThreadPoolExecutor(max_workers=100) as ex:
+        for res in ex.map(scan_robots, raw_data):
+            for s in res: discovery_queue.add(s.strip())
 
     final_items = {}
     processed = set()
     to_process = list(discovery_queue)
     new_metadata = metadata_cache.copy()
-    all_valid_sitemaps = set()
 
+    # Fully Recursive Loop
     level = 0
-    while to_process and level < 5:
-        print(f"Depth {level}: {len(to_process)} sitemaps...")
+    while to_process and level < 10:
+        print(f"Level {level}: processing {len(to_process)} sitemaps...")
         next_batch = []
         with ThreadPoolExecutor(max_workers=200) as executor:
             futures = {executor.submit(fetch_sitemap_content, url, cutoff, metadata_cache): url for url in to_process if url not in processed}
             processed.update(to_process)
+            
             for f in tqdm(as_completed(futures), total=len(futures), desc=f"L{level}"):
                 url = futures[f]
                 try:
                     res_type, (data, lmod) = f.result()
                     if lmod: new_metadata[url] = lmod
-                    if res_type == "cached": all_valid_sitemaps.add(url)
-                    elif res_type == "index":
+                    
+                    if res_type == "index":
                         next_batch.extend([u for u in data if u not in processed])
-                        all_valid_sitemaps.add(url)
                     elif res_type == "items":
                         if data:
-                            all_valid_sitemaps.add(url)
                             for it in data:
                                 loc = it["loc"]
                                 if loc not in final_items or it["lastmod"] > final_items[loc].get("lastmod", ""):
@@ -180,10 +168,10 @@ def main():
         to_process = next_batch
         level += 1
 
-    with open(CACHE_SITEMAPS, "w") as f:
-        for s in sorted(all_valid_sitemaps): f.write(s + "\n")
+    # Save state
     with open(CACHE_METADATA, 'w') as f: json.dump(new_metadata, f, indent=2)
 
+    # Write combined_sitemap.xml
     with open("combined_sitemap.xml", "w") as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         f.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n')
@@ -200,7 +188,7 @@ def main():
             f.write('  </url>\n')
         f.write('</urlset>\n')
     
-    print(f"SUCCESS! {len(final_items)} items with headlines found.")
+    print(f"DONE! Found {len(final_items)} items with headlines.")
 
 if __name__ == "__main__":
     main()
