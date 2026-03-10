@@ -1,0 +1,88 @@
+2026-03-10 18:26:11,741 - asyncio - DEBUG - __init__:64 - Using selector: KqueueSelector
+2026-03-10 18:26:18,979 - root - DEBUG - action_run_query:845 - Executing query: SELECT * FROM '/Volumes/dev/scraper/historical_archive.parquet' LIMIT 100;
+2026-03-10 18:26:18,992 - root - DEBUG - action_run_query:859 - Query execution started, task tracked
+2026-03-10 18:26:18,992 - root - DEBUG - action_run_query:863 - Connection info: None
+2026-03-10 18:26:18,992 - root - DEBUG - execute:867 - Executing SQL query in thread
+2026-03-10 18:26:19,017 - root - DEBUG - execute:889 - DuckDB query executed: 100 rows, 20 columns
+2026-03-10 18:26:19,017 - root - DEBUG - action_run_query:897 - Setting up table with 20 columns and 100 rows
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:969 - Refreshing table: 100 rows, 20 columns
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 0: loc
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 1: lastmod
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 2: title
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 3: source
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 4: keywords
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 5: stock_tickers
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 6: description
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 7: image
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 8: canonical_url
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 9: twitter_card
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 10: og_url
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 11: published_time
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 12: modified_time
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 13: section
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 14: site_name
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 15: og_type
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 16: archived_at
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 17: id
+2026-03-10 18:26:19,017 - root - DEBUG - refresh_tab_table:1004 - Added column 18: author
+2026-03-10 18:26:19,018 - root - DEBUG - refresh_tab_table:1004 - Added column 19: tags
+2026-03-10 18:26:19,018 - root - DEBUG - refresh_tab_table:1007 - Adding 100 data rows to table
+2026-03-10 18:26:19,019 - root - DEBUG - refresh_tab_table:1011 - Table refresh completed: 100 rows, 20 columns
+2026-03-10 18:26:19,019 - root - DEBUG - action_run_query:903 - Query completed successfully: 100 rows in 0.0246s
+2026-03-10 18:26:19,019 - root - DEBUG - action_run_query:916 - Query execution completed, task reference cleared
+2026-03-10 18:50:46,758 - asyncio - DEBUG - __init__:64 - Using selector: KqueueSelector
+2026-03-10 18:50:54,439 - root - DEBUG - action_run_query:845 - Executing query: SELECT * FROM '/Volumes/dev/scraper/latest_24h.parquet' LIMIT 100;
+2026-03-10 18:50:54,442 - root - DEBUG - action_run_query:859 - Query execution started, task tracked
+2026-03-10 18:50:54,442 - root - DEBUG - action_run_query:863 - Connection info: None
+2026-03-10 18:50:54,442 - root - DEBUG - execute:867 - Executing SQL query in thread
+2026-03-10 18:50:54,464 - root - DEBUG - execute:889 - DuckDB query executed: 100 rows, 13 columns
+2026-03-10 18:50:54,464 - root - DEBUG - action_run_query:897 - Setting up table with 13 columns and 100 rows
+2026-03-10 18:50:54,464 - root - DEBUG - refresh_tab_table:969 - Refreshing table: 100 rows, 13 columns
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 0: id
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 1: loc
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 2: lastmod
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 3: title
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 4: keywords
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 5: source
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 6: description
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 7: image
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 8: author
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 9: site_name
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 10: published_time
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 11: section
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1004 - Added column 12: stock_tickers
+2026-03-10 18:50:54,465 - root - DEBUG - refresh_tab_table:1007 - Adding 100 data rows to table
+2026-03-10 18:50:54,466 - root - DEBUG - refresh_tab_table:1011 - Table refresh completed: 100 rows, 13 columns
+2026-03-10 18:50:54,466 - root - DEBUG - action_run_query:903 - Query completed successfully: 100 rows in 0.0222s
+2026-03-10 18:50:54,466 - root - DEBUG - action_run_query:916 - Query execution completed, task reference cleared
+2026-03-10 18:51:37,278 - root - DEBUG - action_run_query:845 - Executing query: SELECT * FROM '/Volumes/dev/scraper/historical_archive.parquet' LIMIT 100;
+2026-03-10 18:51:37,280 - root - DEBUG - action_run_query:859 - Query execution started, task tracked
+2026-03-10 18:51:37,280 - root - DEBUG - action_run_query:863 - Connection info: None
+2026-03-10 18:51:37,280 - root - DEBUG - execute:867 - Executing SQL query in thread
+2026-03-10 18:51:37,295 - root - DEBUG - execute:889 - DuckDB query executed: 100 rows, 20 columns
+2026-03-10 18:51:37,295 - root - DEBUG - action_run_query:897 - Setting up table with 20 columns and 100 rows
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:969 - Refreshing table: 100 rows, 20 columns
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 0: loc
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 1: lastmod
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 2: title
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 3: source
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 4: keywords
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 5: stock_tickers
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 6: description
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 7: image
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 8: canonical_url
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 9: twitter_card
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 10: og_url
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 11: published_time
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 12: modified_time
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 13: section
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 14: site_name
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 15: og_type
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 16: archived_at
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 17: id
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 18: author
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1004 - Added column 19: tags
+2026-03-10 18:51:37,295 - root - DEBUG - refresh_tab_table:1007 - Adding 100 data rows to table
+2026-03-10 18:51:37,297 - root - DEBUG - refresh_tab_table:1011 - Table refresh completed: 100 rows, 20 columns
+2026-03-10 18:51:37,297 - root - DEBUG - action_run_query:903 - Query completed successfully: 100 rows in 0.0141s
+2026-03-10 18:51:37,297 - root - DEBUG - action_run_query:916 - Query execution completed, task reference cleared

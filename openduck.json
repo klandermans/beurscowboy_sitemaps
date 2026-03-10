@@ -1,0 +1,18 @@
+{
+  "history": [
+    {
+      "sql": "SELECT * FROM '/Volumes/dev/scraper/historical_archive.parquet' LIMIT 100;",
+      "timestamp": "2026-03-10T18:26:18.979849"
+    },
+    {
+      "sql": "SELECT * FROM '/Volumes/dev/scraper/latest_24h.parquet' LIMIT 100;",
+      "timestamp": "2026-03-10T18:50:54.439627"
+    },
+    {
+      "sql": "SELECT * FROM '/Volumes/dev/scraper/historical_archive.parquet' LIMIT 100;",
+      "timestamp": "2026-03-10T18:51:37.279167"
+    }
+  ],
+  "saved_queries": [],
+  "connections": []
+}
