@@ -34,105 +34,57 @@ except ImportError:
     def tqdm(iterable, *args, **kwargs): return iterable
 
 # De lijst van domeinen
-raw_data = [
-    "bloomberg.com", "reuters.com", "wsj.com", "cnbc.com", "ft.com", "finance.yahoo.com", "investing.com", "marketwatch.com", "barrons.com", "economist.com", "forbes.com", "businessinsider.com", "fortune.com", "nasdaq.com", "investopedia.com", "thestreet.com", "morningstar.com", "seekingalpha.com", "benzinga.com", "zerohedge.com", "nikkei.com", "lesechos.fr", "tradingview.com", "koyfin.com", "ycharts.com", "finviz.com", "tipranks.com", "fool.com", "kiplinger.com", "marketbeat.com", "briefing.com", "newsquawk.com", "fxstreet.com", "forexlive.com", "marketaux.com", "stocktwits.com", "etf.com", "etftrends.com", "barchart.com", "gurufocus.com", "simplywall.st", "wallstreetzen.com", "theblock.co", "coindesk.com", "cointelegraph.com", "economictimes.indiatimes.com", "caixinglobal.com", "scmp.com", "theglobeandmail.com", "afr.com", "moneycontrol.com", "dgap.de", "borsen.dk", "fd.nl", "tijd.be", "beursduivel.be", "privateequitywire.co.uk", "venturebeat.com", "techcrunch.com", "pymnts.com", "finextra.com", "fintechmagazine.com", "thepharmaletter.com", "platts.com", "mining.com", "shippingwatch.com", "reit.com", "realvision.com", "pionline.com", "goldmansachs.com", "jpmorgan.com", "morganstanley.com", "blackrock.com", "imf.org", "ecb.europa.eu", "federalreserve.gov", "bis.org", "stlouisfed.org", "project-syndicate.org", "voxeu.org", "morningbrew.com", "thehustle.co", "axios.com", "puck.news", "substack.com", "reddit.com/r/investing", "reddit.com/r/stocks", "quiverquant.com", "unusualwhales.com", "openinsider.com", "whalewisdom.com", "glassnode.com", "messari.io", "defillama.com", "moodys.com", "spglobal.com", "fitchratings.com", "msci.com", "vanguard.com", "bridgewater.com", "citadel.com", "a16z.com", "sequoiacap.com", "ycombinator.com", "dealbook.nytimes.com", "qz.com", "fastcompany.com", "inc.com", "entrepreneur.com", "hbr.org", "mckinsey.com", "bcg.com", "bain.com", "deloitte.com", "pwc.com", "ey.com", "kpmg.com", "worldbank.org", "oecd.org", "wto.org", "iif.com", "isda.org", "sifma.org", "finra.org", "sec.gov", "fca.org.uk", "esma.europa.eu", "tmx.com", "lseg.com", "euronext.com", "deutsche-boerse.com", "hkex.com.hk", "sgx.com", "tse.or.jp", "jse.co.za", "chicagobusiness.com", "crainsnewyork.com", "bizjournals.com", "americanbanker.com", "insurancejournal.com", "institutionalinvestor.com", "citywire.com", "wealthmanagement.com", "financial-planning.com", "investmentnews.com", "thinkadvisor.com", "advisorhub.com", "fa-mag.com", "etfstream.com", "mutualfundobserver.com", "hedgeweek.com", "pehub.com", "pitchbook.com", "crunchbase.com", "cbinsights.com", "tracxn.com", "preqin.com", "tradingeconomics.com", "indexmundi.com", "quandl.com", "intrinio.com", "iexcloud.io", "polygon.io", "alpha-vantage.co", "tiingo.com", "yardeni.com", "calculatedriskblog.com", "marginalrevolution.com", "econbrowser.com", "wolfstreet.com", "bondvigilantes.com", "capitalspectator.com", "valueline.com", "investors.com", "marketwatch.com", "schaeffersresearch.com", "cboe.com", "cmegroup.com", "morningstar.co.uk", "advfn.com", "moneyweek.com", "sharesmagazine.co.uk", "investorschronicle.co.uk", "iii.co.uk", "hl.co.uk", "ig.com", "saxobank.com", "etoro.com", "degiro.com", "interactivebrokers.com", "robinhood.com", "schwab.com", "fidelity.com", "vanguard.com", "blackrock.com/us", "pimco.com", "allianz.com", "axa.com", "generali.com", "prudential.com", "metlife.com", "manulife.com", "sunlife.com", "hsbc.com", "bnpparibas.com", "societegenerale.com", "santander.com", "bbva.com", "unicreditgroup.eu", "intesasanpaolo.com", "ubs.com", "deutschebank.com", "commerzbank.com", "ing.com", "rabobank.com", "abnamro.com", "kbc.com", "belfius.be", "societe.com", "boursorama.com", "lesechos.fr", "latribune.fr", "lefigaro.fr/economie", "lemonde.fr/economie", "capital.fr", "zonebourse.com", "ilsole24ore.com", "milanofinanza.it", "corriere.it/economia", "repubblica.it/economia", "expansion.com", "cincodias.elpais.com", "eleconomista.es", "jornaldenegocios.pt", "dinheirovivo.pt", "faz.net", "welt.de/wirtschaft", "wiwo.de", "boerse-online.de", "godmode-trader.de", "finanzen.net", "onvista.de", "wallstreet-online.de", "nzz.ch/wirtschaft", "fuw.ch", "cash.ch", "handelszeitung.ch", "standard.at", "diepresse.com/economie", "di.se", "e24.no", "kauppalehti.fi", "pge.pl", "money.pl", "bankier.pl", "portfolio.hu", "ekonomika.cz", "rbc.ru", "kommersant.ru", "vedomosti.ru", "finanz.ru", "money.163.com", "finance.sina.com.cn", "eastmoney.com", "hexun.com", "asahi.com/business", "mainichi.jp/biz", "yomiuri.co.jp/economy", "chosun.com/business", "donga.com/economy", "hankyung.com", "mk.co.kr", "livemint.com", "business-standard.com", "financialexpress.com", "moneycontrol.com", "dawn.com/business", "aljazeera.com/business", "arabnews.com/business-economy", "gulfnews.com/business", "thenationalnews.com/business", "economist.co.il", "globes.co.il", "themarker.com", "businessday.ng", "vanguardngr.com/business", "standardmedia.co.ke/business", "mg.co.za", "fin24.com", "valor.globo.com", "exame.com", "cronista.com", "lanacion.com.ar/economia", "df.cl", "portafolio.co", "eleconomista.com.mx",
-    "stcn.com", "cnstock.com", "jrj.com.cn", "hket.com", "aastocks.com",
-    "yicaiglobal.com", "kr-asia.com", "japantimes.co.jp", "nikkan.co.jp",
-    "kabutan.jp", "minkabu.jp", "fisco.co.jp", "stockhead.com.au",
-    "marketindex.com.au", "interest.co.nz", "theedgesingapore.com",
-    "businesstimes.com.sg", "bworldonline.com", "vietnamnews.vn",
-    "etfdb.com", "stockcharts.com", "bamsec.com", "insiderviz.com",
-    "globenewswire.com", "businesswire.com", "infomoney.com.br",
-    "a16z.com", "aastocks.com", "abnamro.com", "advfn.com", "advisorhub.com",
-    "afr.com", "aljazeera.com/business", "allianz.com", "alpha-vantage.co",
-    "americanbanker.com", "arabnews.com/business-economy", "axa.com",
-    "axios.com", "bain.com", "bamsec.com", "bankier.pl", "barchart.com",
-    "barrons.com", "bbva.com", "bcg.com", "belfius.be", "benzinga.com",
-    "beursduivel.be", "bis.org", "bizjournals.com", "blackrock.com",
-    "blackrock.com/us", "bloomberg.com", "bnpparibas.com", "boerse-online.de",
-    "bondvigilantes.com", "borsen.dk", "boursorama.com", "bridgewater.com",
-    "briefing.com", "business-standard.com", "businessday.ng",
-    "businessinsider.com", "businesstimes.com.sg", "bworldonline.com",
-    "caixinglobal.com", "calculatedriskblog.com", "capital.fr",
-    "capitalspectator.com", "cash.ch", "cbinsights.com", "cboe.com",
-    "chicagobusiness.com", "chosun.com/business", "cincodias.elpais.com",
-    "citadel.com", "citywire.com", "cmegroup.com", "cnbc.com", "cnstock.com",
-    "coindesk.com", "cointelegraph.com", "commerzbank.com",
-    "corriere.it/economia", "crainsnewyork.com", "credit-suisse.com",
-    "cronista.com", "crunchbase.com", "dawn.com/business", "defillama.com",
-    "degiro.com", "deloitte.com", "deutsche-boerse.com", "deutschebank.com",
-    "df.cl", "dgap.de", "di.se", "diepresse.com/economie", "dinheirovivo.pt",
-    "donga.com/economy", "e24.no", "eastmoney.com", "ecb.europa.eu",
-    "econbrowser.com", "economictimes.indiatimes.com", "economist.co.il",
-    "economist.com", "ekonomika.cz", "eleconomista.com.mx", "eleconomista.es",
-    "entrepreneur.com", "esma.europa.eu", "etf.com", "etfdb.com",
-    "etfstream.com", "etftrends.com", "etoro.com", "euronext.com", "exame.com",
-    "expansion.com", "ey.com", "fa-mag.com", "fastcompany.com", "faz.net",
-    "fca.org.uk", "fd.nl", "federalreserve.gov", "fidelity.com",
-    "finance.sina.com.cn", "finance.yahoo.com", "financial-planning.com",
-    "financialexpress.com", "finanz.ru", "finanzen.net", "finextra.com",
-    "finra.org", "fintechmagazine.com", "finviz.com", "fisco.co.jp",
-    "fitchratings.com", "fool.com", "forbes.com", "forexlive.com", "ft.com",
-    "fuw.ch", "fxstreet.com", "generali.com", "glassnode.com",
-    "globenewswire.com", "globes.co.il", "godmode-trader.de",
-    "goldmansachs.com", "gulfnews.com/business", "handelszeitung.ch",
-    "hankyung.com", "hbr.org", "hedgeweek.com", "hexun.com", "hket.com",
-    "hkex.com.hk", "hl.co.uk", "hsbc.com", "iexcloud.io", "ig.com", "iif.com",
-    "iii.co.uk", "ilsole24ore.com", "imf.org", "inc.com", "indexmundi.com",
-    "infomoney.com.br", "ing.com", "insiderviz.com", "institutionalinvestor.com",
-    "insurancejournal.com", "interactivebrokers.com", "interest.co.nz",
-    "intesasanpaolo.com", "intrinio.com", "investing.com", "investmentnews.com",
-    "investopedia.com", "investors.com", "investorschronicle.co.uk", "isda.org",
-    "japantimes.co.jp", "jornaldenegocios.pt", "jpmorgan.com", "jrj.com.cn",
-    "jse.co.za", "kabutan.jp", "kauppalehti.fi", "kbc.com", "kiplinger.com",
-    "kommersant.ru", "koyfin.com", "kpmg.com", "kr-asia.com",
-    "lanacion.com.ar/economia", "latribune.fr", "lefigaro.fr/economie",
-    "lemonde.fr/economie", "lesechos.fr", "livemint.com", "lseg.com",
-    "mainichi.jp/biz", "manulife.com", "marginalrevolution.com", "marketaux.com",
-    "marketbeat.com", "marketindex.com.au", "marketwatch.com", "mckinsey.com",
-    "messari.io", "metlife.com", "mg.co.za", "milanofinanza.it", "mining.com",
-    "minkabu.jp", "mk.no.kr", "money.163.com", "money.pl", "moneycontrol.com",
-    "moneyweek.com", "moodys.com", "morganstanley.com", "morningbrew.com",
-    "morningstar.co.uk", "morningstar.com", "msci.com",
-    "mutualfundobserver.com", "nasdaq.com", "newsquawk.com", "nikkan.co.jp",
-    "nikkei.com", "oecd.org", "onvista.de", "openinsider.com", "pehub.com",
-    "pge.pl", "pimco.com", "pionline.com", "pitchbook.com", "platts.com",
-    "polygon.io", "portafolio.co", "portfolio.hu", "preqin.com",
-    "privateequitywire.co.uk", "project-syndicate.org", "prudential.com",
-    "puck.news", "pwc.com", "pymnts.com", "quandl.com", "quiverquant.com",
-    "qz.com", "rabobank.com", "rbc.ru", "realvision.com",
-    "reddit.com/r/investing", "reddit.com/r/stocks", "reit.com",
-    "repubblica.it/economia", "reuters.com", "robinhood.com", "santander.com",
-    "saxobank.com", "schaeffersresearch.com", "schwab.com", "scmp.com",
-    "sec.gov", "seekingalpha.com", "sequoiacap.com", "sgx.com",
-    "sharesmagazine.co.uk", "shippingwatch.com", "sifma.org", "simplywall.st",
-    "societe.com", "societegenerale.com", "spglobal.com", "standard.at",
-    "standardmedia.co.ke/business", "stcn.com", "stlouisfed.org",
-    "stockcharts.com", "stockhead.com.au", "stocktwits.com", "substack.com",
-    "sunlife.com", "techcrunch.com", "theblock.co", "theedgesingapore.com",
-    "theglobeandmail.com", "thehustle.co", "themarker.com",
-    "thenationalnews.com/business", "thepharmaletter.com", "thestreet.com",
-    "thinkadvisor.com", "tiingo.com", "tijd.be", "tipranks.com", "tmx.com",
-    "tracxn.com", "tradingeconomics.com", "tradingview.com", "tse.or.jp",
-    "ubs.com", "unicreditgroup.eu", "unusualwhales.com", "valor.globo.com",
-    "valueline.com", "vanguard.com", "vanguardngr.com/business", "vedomosti.ru",
-    "venturebeat.com", "vietnamnews.vn", "voxeu.org", "wallstreet-online.de",
-    "wallstreetzen.com", "wealthmanagement.com", "welt.de/wirtschaft",
-    "whalewisdom.com", "wiwo.de", "wolfstreet.com", "worldbank.org", "wsj.com",
-    "wto.org", "yardeni.com", "ycharts.com", "ycombinator.com",
-    "yicaiglobal.com", "yomiuri.co.jp/economy", "zerohedge.com", "zonebourse.com"
-]
+DOMAINS_FILE = "domains.json"
+if os.path.exists(DOMAINS_FILE):
+    with open(DOMAINS_FILE, "r") as f:
+        raw_data = json.load(f)
+else:
+    raw_data = ["bloomberg.com", "reuters.com", "wsj.com"]
 raw_data = list(set(raw_data))
 
 # SETTINGS
 NOW = datetime.now(timezone.utc)
 CACHE_SITEMAPS = "sitemaps_list.txt"
 CACHE_METADATA = "cache_metadata.json"
+CACHE_PAGE_METADATA = "page_metadata_cache.json"
 CACHE_DIR = "cache_parquet"
 PARQUET_CACHE_MAX_AGE_HOURS = 1  # Skip request if parquet cache is newer than 1 hour
 NEWS_MAX_AGE_HOURS = 24  # Only include news articles from last 24 hours
 SITEMAP_CACHE_MAX_AGE_DAYS = 1  # Sitemap metadata cache max age in days
+PAGE_METADATA_CACHE_MAX_AGE_HOURS = 24  # Page metadata cache max age in hours
 NEWS_ONLY = True  # Only process news sitemaps (skip regular sitemaps)
+
+# Command line arguments
+REFRESH_CACHE = '--refresh' in sys.argv
+EXTEND_HOURS = None
+for i, arg in enumerate(sys.argv):
+    if arg == '--extend-hours' and i + 1 < len(sys.argv):
+        try:
+            EXTEND_HOURS = int(sys.argv[i + 1])
+        except ValueError:
+            pass
+    if arg == '--help' or arg == '-h':
+        print("""
+Sitemap Aggregator - News Scraper with Page Metadata Enrichment
+
+Usage: python sitemap_aggregator.py [OPTIONS]
+
+Options:
+  --refresh           Ignore cache age, re-fetch all sitemaps
+  --historical        Ignore date filters, collect ALL items from sitemaps
+  --extend-hours N    Collect articles from last N hours (default: 24)
+  --help, -h          Show this help message
+
+Examples:
+  python sitemap_aggregator.py                    # Normal run (24h, cached)
+  python sitemap_aggregator.py --refresh          # Force refresh all caches
+  python sitemap_aggregator.py --extend-hours 72  # Get last 72 hours
+  python sitemap_aggregator.py --refresh --extend-hours 168  # Full week, fresh
+
+After running, build historical archive:
+  python build_historical.py
+""")
+        sys.exit(0)
 
 # Create cache directory
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -153,7 +105,7 @@ def is_news_sitemap(url, content=None):
     # URL patterns that indicate news sitemap
     news_patterns = [
         'news', 'sitemap-news', 'google-news', 'news-sitemap',
-        'articles', 'press', 'presse', 'aktuelles', 'noticias'
+        'articles', 'press', 'presse', 'aktuelles', 'noticias', 'archive', 'archief'
     ]
     
     # Check URL first
@@ -175,19 +127,22 @@ def get_parquet_path(url):
 
 def load_parquet_cache(url, cutoff):
     """Load items from parquet cache if it's fresh enough."""
+    if REFRESH_CACHE:
+        return None  # Skip cache in refresh mode
+    
     if not HAS_PARQUET:
         return None
-    
+
     pq_path = get_parquet_path(url)
     if not os.path.exists(pq_path):
         return None
-    
+
     # Check file age
     file_mtime = datetime.fromtimestamp(os.path.getmtime(pq_path), tz=timezone.utc)
     max_age = NOW - timedelta(hours=PARQUET_CACHE_MAX_AGE_HOURS)
     if file_mtime < max_age:
         return None  # Cache too old
-    
+
     try:
         df = pd.read_parquet(pq_path)
         # Filter by cutoff
@@ -216,6 +171,9 @@ def cleanup_old_parquet_files():
     if not HAS_PARQUET:
         return
     
+    if REFRESH_CACHE or EXTEND_HOURS:
+        return  # Don't cleanup in refresh or extend mode
+
     cutoff = NOW - timedelta(days=SITEMAP_CACHE_MAX_AGE_DAYS)
     removed = 0
     for filename in os.listdir(CACHE_DIR):
@@ -252,6 +210,178 @@ RE_LASTMOD = re.compile(b'<lastmod>(.*?)</lastmod>', re.I | re.DOTALL)
 RE_SITEMAP_BLOCK = re.compile(b'<sitemap>(.*?)</sitemap>', re.I | re.DOTALL)
 RE_URL_BLOCK = re.compile(b'<url>(.*?)</url>', re.I | re.DOTALL)
 RE_STOCK_TICKERS = re.compile(b'<news:stock_tickers>(.*?)</news:stock_tickers>', re.I | re.DOTALL)
+
+# Page metadata regex patterns
+RE_TITLE_TAG = re.compile(b'<title[^>]*>(.*?)</title>', re.I | re.DOTALL)
+RE_META_DESC = re.compile(b'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_META_DESC_ALT = re.compile(b'<meta[^>]+content=["\']([^"\']*)["\'][^>]+name=["\']description["\']', re.I | re.DOTALL)
+RE_OG_TITLE = re.compile(b'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_OG_DESC = re.compile(b'<meta[^>]+property=["\']og:description["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_OG_IMAGE = re.compile(b'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_OG_URL = re.compile(b'<meta[^>]+property=["\']og:url["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_OG_SITE_NAME = re.compile(b'<meta[^>]+property=["\']og:site_name["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_OG_TYPE = re.compile(b'<meta[^>]+property=["\']og:type["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_TWITTER_CARD = re.compile(b'<meta[^>]+name=["\']twitter:card["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_TWITTER_TITLE = re.compile(b'<meta[^>]+name=["\']twitter:title["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_TWITTER_DESC = re.compile(b'<meta[^>]+name=["\']twitter:description["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_TWITTER_IMAGE = re.compile(b'<meta[^>]+name=["\']twitter:image["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_CANONICAL = re.compile(b'<link[^>]+rel=["\']canonical["\'][^>]+href=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_CANONICAL_ALT = re.compile(b'<link[^>]+href=["\']([^"\']*)["\'][^>]+rel=["\']canonical["\']', re.I | re.DOTALL)
+RE_AUTHOR = re.compile(b'<meta[^>]+name=["\']author["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_PUBLISHED_TIME = re.compile(b'<meta[^>]+property=["\']article:published_time["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_MODIFIED_TIME = re.compile(b'<meta[^>]+property=["\']article:modified_time["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_SECTION = re.compile(b'<meta[^>]+property=["\']article:section["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_TAG = re.compile(b'<meta[^>]+property=["\']article:tag["\'][^>]+content=["\']([^"\']*)["\']', re.I | re.DOTALL)
+RE_H1_TAG = re.compile(b'<h1[^>]*>(.*?)</h1>', re.I | re.DOTALL)
+
+def fetch_page_metadata(url, page_metadata_cache):
+    """Fetch page metadata (title, description, image, etc.) from HTML page."""
+    # Check cache first
+    cutoff_cache = NOW - timedelta(hours=PAGE_METADATA_CACHE_MAX_AGE_HOURS)
+    if url in page_metadata_cache:
+        cached = page_metadata_cache[url]
+        cached_time = parse_date(cached.get('fetched_at'))
+        if cached_time and cached_time >= cutoff_cache:
+            return cached
+    
+    try:
+        headers = headers_base.copy()
+        resp = session.get(url, timeout=10, headers=headers)
+        if resp.status_code != 200:
+            return {}
+        
+        content = resp.content
+        metadata = {}
+        
+        # Extract title (prefer og:title, then twitter:title, fallback to <title>)
+        title = None
+        og_title_m = RE_OG_TITLE.search(content)
+        if og_title_m:
+            title = clean_xml_text(og_title_m.group(1))
+        else:
+            twitter_title_m = RE_TWITTER_TITLE.search(content)
+            if twitter_title_m:
+                title = clean_xml_text(twitter_title_m.group(1))
+            else:
+                title_m = RE_TITLE_TAG.search(content)
+                if title_m:
+                    title = clean_xml_text(title_m.group(1))
+        if title:
+            metadata['title'] = title
+        
+        # Extract description (prefer og:description, then twitter:description, fallback to meta description)
+        description = None
+        og_desc_m = RE_OG_DESC.search(content)
+        if og_desc_m:
+            description = clean_xml_text(og_desc_m.group(1))
+        else:
+            twitter_desc_m = RE_TWITTER_DESC.search(content)
+            if twitter_desc_m:
+                description = clean_xml_text(twitter_desc_m.group(1))
+            else:
+                desc_m = RE_META_DESC.search(content)
+                if not desc_m:
+                    desc_m = RE_META_DESC_ALT.search(content)
+                if desc_m:
+                    description = clean_xml_text(desc_m.group(1))
+        if description:
+            metadata['description'] = description
+        
+        # Extract image (prefer og:image, then twitter:image)
+        image = None
+        og_image_m = RE_OG_IMAGE.search(content)
+        if og_image_m:
+            image = clean_xml_text(og_image_m.group(1))
+        else:
+            twitter_image_m = RE_TWITTER_IMAGE.search(content)
+            if twitter_image_m:
+                image = clean_xml_text(twitter_image_m.group(1))
+        if image:
+            # Resolve relative URLs
+            if image.startswith('/'):
+                parsed = urlparse(url)
+                image = f"{parsed.scheme}://{parsed.netloc}{image}"
+            elif image.startswith('//'):
+                parsed = urlparse(url)
+                image = f"{parsed.scheme}:{image}"
+            metadata['image'] = image
+        
+        # Extract canonical URL
+        canonical = None
+        canonical_m = RE_CANONICAL.search(content)
+        if canonical_m:
+            canonical = clean_xml_text(canonical_m.group(1))
+        else:
+            canonical_alt_m = RE_CANONICAL_ALT.search(content)
+            if canonical_alt_m:
+                canonical = clean_xml_text(canonical_alt_m.group(1))
+        if canonical:
+            metadata['canonical_url'] = canonical
+        
+        # Extract author
+        author_m = RE_AUTHOR.search(content)
+        if author_m:
+            metadata['author'] = clean_xml_text(author_m.group(1))
+        
+        # Extract article published time
+        pub_time_m = RE_PUBLISHED_TIME.search(content)
+        if pub_time_m:
+            metadata['published_time'] = clean_xml_text(pub_time_m.group(1))
+        
+        # Extract article modified time
+        mod_time_m = RE_MODIFIED_TIME.search(content)
+        if mod_time_m:
+            metadata['modified_time'] = clean_xml_text(mod_time_m.group(1))
+        
+        # Extract article section
+        section_m = RE_SECTION.search(content)
+        if section_m:
+            metadata['section'] = clean_xml_text(section_m.group(1))
+        
+        # Extract article tags (can be multiple)
+        tags = []
+        for tag_m in RE_TAG.finditer(content):
+            tag = clean_xml_text(tag_m.group(1))
+            if tag:
+                tags.append(tag)
+        if tags:
+            metadata['tags'] = tags
+        
+        # Extract Open Graph site name
+        site_name_m = RE_OG_SITE_NAME.search(content)
+        if site_name_m:
+            metadata['site_name'] = clean_xml_text(site_name_m.group(1))
+        
+        # Extract Open Graph type
+        og_type_m = RE_OG_TYPE.search(content)
+        if og_type_m:
+            metadata['og_type'] = clean_xml_text(og_type_m.group(1))
+        
+        # Extract Twitter card type
+        twitter_card_m = RE_TWITTER_CARD.search(content)
+        if twitter_card_m:
+            metadata['twitter_card'] = clean_xml_text(twitter_card_m.group(1))
+        
+        # Extract og:url
+        og_url_m = RE_OG_URL.search(content)
+        if og_url_m:
+            metadata['og_url'] = clean_xml_text(og_url_m.group(1))
+        
+        # Fallback to h1 if no title found
+        if not title:
+            h1_m = RE_H1_TAG.search(content)
+            if h1_m:
+                metadata['title'] = clean_xml_text(h1_m.group(1))
+        
+        # Save to cache
+        if metadata:
+            metadata['fetched_at'] = datetime.now(timezone.utc).isoformat()
+            page_metadata_cache[url] = metadata
+        
+        return metadata
+    except Exception as e:
+        print(f"  ERROR fetching page metadata for {url}: {e}")
+        return {}
 
 def fetch_sitemap_content(url, cutoff, metadata_cache):
     # Skip relative URLs without scheme
@@ -311,7 +441,7 @@ def fetch_sitemap_content(url, cutoff, metadata_cache):
             lm_match = RE_LASTMOD.search(data)
             lm_str = lm_match.group(1).decode('utf-8', 'ignore').strip() if lm_match else ""
             dt = parse_date(lm_str)
-            if not dt or (cutoff <= dt <= (NOW + timedelta(minutes=10))):
+            if HISTORICAL_MODE or not dt or (cutoff <= dt <= (NOW + timedelta(minutes=10))):
                 title_m = re.search(b'<news:title>(.*?)</news:title>', data, re.I | re.S)
                 if not title_m: title_m = re.search(b'<title>(.*?)</title>', data, re.I | re.S)
                 if title_m:
@@ -346,10 +476,20 @@ def fetch_sitemap_content(url, cutoff, metadata_cache):
 
 def main():
     cutoff = NOW - timedelta(hours=NEWS_MAX_AGE_HOURS)  # 24 uur voor nieuws
+    
+    # Override cutoff if --extend-hours is used
+    if EXTEND_HOURS:
+        cutoff = NOW - timedelta(hours=EXTEND_HOURS)
+        print(f"EXTENDED MODE: Collecting articles from last {EXTEND_HOURS} hours")
+    
     print(f"NUCLEAR RECURSIVE Scan | Start: {NOW.strftime('%H:%M:%S')} UTC | Workers: 200")
     print(f"Looking for articles from the last {NEWS_MAX_AGE_HOURS} hours")
     print(f"Parquet cache enabled: {HAS_PARQUET}, max age: {PARQUET_CACHE_MAX_AGE_HOURS}h")
     print(f"NEWS_ONLY mode: {NEWS_ONLY}")
+    if REFRESH_CACHE:
+        print("REFRESH MODE: Ignoring cache age, re-fetching all sitemaps")
+    if EXTEND_HOURS:
+        print(f"EXTEND MODE: Historical collection for {EXTEND_HOURS} hours")
 
     # Cleanup old parquet files (older than SITEMAP_CACHE_MAX_AGE_DAYS)
     if HAS_PARQUET:
@@ -362,9 +502,22 @@ def main():
                 metadata_cache = json.load(f)
             # Remove old metadata entries
             cutoff_cache = NOW - timedelta(days=SITEMAP_CACHE_MAX_AGE_DAYS)
-            metadata_cache = {k: v for k, v in metadata_cache.items() 
+            metadata_cache = {k: v for k, v in metadata_cache.items()
                            if parse_date(v) is None or parse_date(v) >= cutoff_cache}
             print(f"Loaded {len(metadata_cache)} cached sitemap metadata entries")
+        except: pass
+
+    # Load page metadata cache
+    page_metadata_cache = {}
+    if os.path.exists(CACHE_PAGE_METADATA) and not REFRESH_CACHE:
+        try:
+            with open(CACHE_PAGE_METADATA, 'r') as f:
+                page_metadata_cache = json.load(f)
+            # Remove old entries
+            cutoff_cache = NOW - timedelta(hours=PAGE_METADATA_CACHE_MAX_AGE_HOURS)
+            page_metadata_cache = {k: v for k, v in page_metadata_cache.items()
+                                 if parse_date(v.get('fetched_at')) is None or parse_date(v.get('fetched_at')) >= cutoff_cache}
+            print(f"Loaded {len(page_metadata_cache)} cached page metadata entries")
         except: pass
 
     discovery_queue = set()
@@ -448,10 +601,63 @@ def main():
     print(f"\nScan statistics: {stats}")
     print(f"Valid sitemaps: {len(all_valid_sitemaps)}")
 
+    # Enrich items without title using page metadata
+    
+    # Pre-save latest 24h as Parquet and JSON (before enrichment)
+    latest_items_pre = sorted(final_items.values(), key=lambda x: x.get('lastmod', ''), reverse=True)
+    if HAS_PARQUET and latest_items_pre:
+        try:
+            pd.DataFrame(latest_items_pre).to_parquet('latest_24h.parquet', index=False, compression='snappy')
+            print(f'Pre-saved latest 24h Parquet: latest_24h.parquet ({len(latest_items_pre)} items)')
+        except Exception as e:
+            pass
+
+    try:
+        with open('latest_24h.json', 'w') as f:
+            json.dump(latest_items_pre, f, indent=2, default=str)
+        print(f'Pre-saved latest 24h JSON: latest_24h.json ({len(latest_items_pre)} items)')
+    except Exception as e:
+        pass
+
+    items_to_enrich = [loc for loc, item in final_items.items() if not item.get('title') or not item.get('description') or not item.get('image')]
+    if items_to_enrich:
+        print(f"\nFetching page metadata for {len(items_to_enrich)} items with missing metadata...")
+        sys.stdout.flush()
+        enriched = 0
+        for loc in tqdm(items_to_enrich, desc="Fetching page metadata", file=sys.stdout, mininterval=1):
+            metadata = fetch_page_metadata(loc, page_metadata_cache)
+            if metadata:
+                # Merge metadata, prioritizing existing sitemap data
+                if metadata.get('title') and not final_items[loc].get('title'):
+                    final_items[loc]['title'] = metadata['title']
+                    enriched += 1
+                if metadata.get('description') and not final_items[loc].get('description'):
+                    final_items[loc]['description'] = metadata['description']
+                if metadata.get('image') and not final_items[loc].get('image'):
+                    final_items[loc]['image'] = metadata['image']
+                if metadata.get('author') and not final_items[loc].get('author'):
+                    final_items[loc]['author'] = metadata['author']
+                if metadata.get('tags') and not final_items[loc].get('tags'):
+                    # Merge with existing keywords if available
+                    existing_keywords = final_items[loc].get('keywords', '')
+                    new_tags = ', '.join(metadata['tags'])
+                    if existing_keywords:
+                        final_items[loc]['keywords'] = f"{existing_keywords}, {new_tags}"
+                    else:
+                        final_items[loc]['keywords'] = new_tags
+                if metadata.get('published_time') and not final_items[loc].get('published_time'):
+                    final_items[loc]['published_time'] = metadata['published_time']
+                if metadata.get('section') and not final_items[loc].get('section'):
+                    final_items[loc]['section'] = metadata['section']
+                if metadata.get('site_name') and not final_items[loc].get('site_name'):
+                    final_items[loc]['site_name'] = metadata['site_name']
+        print(f"Enriched {enriched}/{len(items_to_enrich)} items with page metadata")
+
     # Save state
     with open(CACHE_SITEMAPS, "w") as f:
         for s in sorted(all_valid_sitemaps): f.write(s + "\n")
     with open(CACHE_METADATA, 'w') as f: json.dump(new_metadata, f, indent=2)
+    with open(CACHE_PAGE_METADATA, 'w') as f: json.dump(page_metadata_cache, f, indent=2)
 
     # Write output with stock_tickers
     with open("combined_sitemap.xml", "w") as f:
@@ -465,12 +671,37 @@ def main():
             if "source" in item: f.write(f'      <news:publication><news:name>{item["source"]}</news:name><news:language>en</news:language></news:publication>\n')
             if item.get("lastmod"):
                 f.write(f'      <news:publication_date>{item["lastmod"]}</news:publication_date>\n')
-            f.write(f'      <news:title>{item["title"]}</news:title>\n')
+            if item.get("title"):
+                f.write(f'      <news:title>{item["title"]}</news:title>\n')
             if "keywords" in item: f.write(f'      <news:keywords>{item["keywords"]}</news:keywords>\n')
             if "stock_tickers" in item: f.write(f'      <news:stock_tickers>{item["stock_tickers"]}</news:stock_tickers>\n')
+            if "description" in item: f.write(f'      <news:description>{item["description"]}</news:description>\n')
+            if "image" in item: f.write(f'      <news:image>{item["image"]}</news:image>\n')
+            if "author" in item: f.write(f'      <news:author>{item["author"]}</news:author>\n')
+            if "published_time" in item: f.write(f'      <news:published_time>{item["published_time"]}</news:published_time>\n')
+            if "section" in item: f.write(f'      <news:section>{item["section"]}</news:section>\n')
+            if "site_name" in item: f.write(f'      <news:site_name>{item["site_name"]}</news:site_name>\n')
             f.write('    </news:news>\n')
             f.write('  </url>\n')
         f.write('</urlset>\n')
+
+    
+    # Save latest 24h as Parquet and JSON
+    latest_items = sorted(final_items.values(), key=lambda x: x.get('lastmod', ''), reverse=True)
+    if HAS_PARQUET and latest_items:
+        try:
+            df_latest = pd.DataFrame(latest_items)
+            df_latest.to_parquet('latest_24h.parquet', index=False, compression='snappy')
+            print(f'Saved latest 24h Parquet: latest_24h.parquet ({len(latest_items)} items)')
+        except Exception as e:
+            print(f'Warning: Could not save latest_24h.parquet: {e}')
+
+    try:
+        with open('latest_24h.json', 'w') as f:
+            json.dump(latest_items, f, indent=2, default=str)
+        print(f'Saved latest 24h JSON: latest_24h.json ({len(latest_items)} items)')
+    except Exception as e:
+        print(f'Warning: Could not save latest_24h.json: {e}')
 
     print(f"DONE! Found {len(final_items)} items with headlines.")
 
