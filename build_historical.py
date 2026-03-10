@@ -80,24 +80,50 @@ def load_page_metadata():
             return json.load(f)
     return {}
 
+def is_value_empty(val):
+    """Check if a value is empty/missing (handles None, empty strings, empty lists, numpy arrays)."""
+    if val is None:
+        return True
+    if isinstance(val, str) and val == '':
+        return True
+    # Handle numpy arrays and pandas Series
+    try:
+        import numpy as np
+        if isinstance(val, np.ndarray):
+            return len(val) == 0
+    except ImportError:
+        pass
+    # Handle lists and other sequences
+    if hasattr(val, '__len__') and not isinstance(val, str):
+        return len(val) == 0
+    return False
+
 def merge_data(new_items, existing_items, page_metadata, domains=None):
     """
     Merge new items with existing archive and page metadata.
-    Avoids re-processing items already in existing_items.
+    Also enriches existing items with page metadata if missing.
     """
     merged = {}
-    
-    # Start with existing items (already "done")
+    enriched_count = 0
+
+    # Start with existing items and enrich them with page metadata
     for item in existing_items:
         loc = item.get('loc', '')
         item_id = item.get('id') or hashlib.md5(loc.encode()).hexdigest()
         if loc:
-            merged[item_id] = item
-    
+            merged_item = item.copy()
+            # Enrich existing items with page metadata if missing fields
+            if loc in page_metadata:
+                meta = page_metadata[loc]
+                for key, value in meta.items():
+                    if key != 'fetched_at' and is_value_empty(merged_item.get(key)):
+                        merged_item[key] = value
+                        enriched_count += 1
+            merged[item_id] = merged_item
+
     existing_count = len(merged)
     new_added = 0
-    enriched_count = 0
-    
+
     # Domain set for filtering if provided
     domain_set = set(domains) if domains else None
 
@@ -107,7 +133,7 @@ def merge_data(new_items, existing_items, page_metadata, domains=None):
         item_id = item.get('id') or hashlib.md5(loc.encode()).hexdigest()
         if not loc:
             continue
-            
+
         # Optional: filter by domain if domains list is provided
         if domain_set:
             try:
@@ -127,25 +153,25 @@ def merge_data(new_items, existing_items, page_metadata, domains=None):
             if loc in page_metadata:
                 meta = page_metadata[loc]
                 for key, value in meta.items():
-                    if key != 'fetched_at' and not merged_item.get(key):
+                    if key != 'fetched_at' and is_value_empty(merged_item.get(key)):
                         merged_item[key] = value
                         enriched_count += 1
             continue
-        
+
         # New item!
         merged_item = item.copy()
         new_added += 1
-        
+
         # Enrich with page metadata if available
         if loc in page_metadata:
             meta = page_metadata[loc]
             for key, value in meta.items():
-                if key != 'fetched_at' and not merged_item.get(key):
+                if key != 'fetched_at' and is_value_empty(merged_item.get(key)):
                     merged_item[key] = value
                     enriched_count += 1
-        
+
         merged[item_id] = merged_item
-    
+
     return list(merged.values()), new_added, enriched_count
 
 def save_historical_archive(items):
