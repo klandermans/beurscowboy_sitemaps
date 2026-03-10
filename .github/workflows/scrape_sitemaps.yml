@@ -31,20 +31,19 @@ jobs:
         env:
           PYTHONUNBUFFERED: 1
 
-      - name: Build Historical Archive (Incremental)
-        run: python build_historical.py
-        env:
-          PYTHONUNBUFFERED: 1
-
       - name: Commit and Push Results
         run: |
           git config --global user.name "Financial Bot"
           git config --global user.email "bot@github.com"
-          # Voeg alle relevante databasebestanden toe (Parquet en JSON)
+          
+          # Voeg alleen de 24-uurs database en metadata cache toe
           git add domains.json sitemaps_list.txt cache_metadata.json page_metadata_cache.json
           git add latest_24h.parquet latest_24h.json
-          git add historical_archive.parquet historical_archive.json historical_archive.json.gz
-          git add cache_parquet/*.parquet
           
           # Alleen committen als er daadwerkelijk iets veranderd is
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update financial news database (incremental) [skip ci]" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Update news database (24h) [skip ci]"
+            git push origin main
+          else
+            echo "Geen wijzigingen om te committen."
+          fi

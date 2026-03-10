@@ -108,8 +108,10 @@ def is_news_sitemap(url, content=None):
     # URL patterns that indicate news sitemap
     news_patterns = [
         'news', 'sitemap-news', 'google-news', 'news-sitemap',
-        'articles', 'press', 'presse', 'aktuelles', 'noticias', 'archive', 'archief'
+        'articles', 'press', 'presse', 'aktuelles', 'noticias'
     ]
+    if HISTORICAL_MODE:
+        news_patterns.extend(['archive', 'archief', 'sitemap'])
     
     # Check URL first
     if any(pattern in url_lower for pattern in news_patterns):
