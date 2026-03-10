@@ -1,3 +1,5 @@
+import hashlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 #!/usr/bin/env python3
 """
 Build historical dataset from cached parquet files and page metadata.
@@ -43,25 +45,31 @@ def load_existing_archive():
     if os.path.exists(HISTORICAL_OUTPUT):
         try:
             df = pd.read_parquet(HISTORICAL_OUTPUT)
+            if "id" not in df.columns:
+                df["id"] = df["loc"].apply(lambda x: hashlib.md5(x.encode()).hexdigest())
             return df.to_dict('records')
         except Exception as e:
             print(f"Warning: Could not read existing archive {HISTORICAL_OUTPUT}: {e}")
     return []
 
 def load_parquet_files():
-    """Load all parquet files from cache directory."""
+    """Load all parquet files from cache directory (PARALLEL)."""
     all_items = []
     parquet_files = list(Path(CACHE_DIR).glob("*.parquet"))
     
-    print(f"Found {len(parquet_files)} parquet cache files")
+    print(f"Found {len(parquet_files)} parquet cache files (Parallel loading)")
     
-    for pq_path in parquet_files:
+    def load_file(pq_path):
         try:
             df = pd.read_parquet(pq_path)
-            records = df.to_dict('records')
-            all_items.extend(records)
-        except Exception as e:
-            print(f"  Warning: Could not read {pq_path}: {e}")
+            return df.to_dict('records')
+        except:
+            return []
+
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        futures = {executor.submit(load_file, path): path for path in parquet_files}
+        for f in as_completed(futures):
+            all_items.extend(f.result())
     
     return all_items
 
@@ -82,8 +90,9 @@ def merge_data(new_items, existing_items, page_metadata, domains=None):
     # Start with existing items (already "done")
     for item in existing_items:
         loc = item.get('loc', '')
+        item_id = item.get('id') or hashlib.md5(loc.encode()).hexdigest()
         if loc:
-            merged[loc] = item
+            merged[item_id] = item
     
     existing_count = len(merged)
     new_added = 0
@@ -95,6 +104,7 @@ def merge_data(new_items, existing_items, page_metadata, domains=None):
     # Add new items
     for item in new_items:
         loc = item.get('loc', '')
+        item_id = item.get('id') or hashlib.md5(loc.encode()).hexdigest()
         if not loc:
             continue
             
@@ -111,9 +121,9 @@ def merge_data(new_items, existing_items, page_metadata, domains=None):
         # If already in archive, we only update if this item is "newer" (based on lastmod)
         # However, for historical building, we usually assume the archive is the source of truth
         # unless we want to allow updates to existing entries.
-        if loc in merged:
+        if item_id in merged:
             # Maybe update metadata if it was missing?
-            merged_item = merged[loc]
+            merged_item = merged[item_id]
             if loc in page_metadata:
                 meta = page_metadata[loc]
                 for key, value in meta.items():
@@ -134,7 +144,7 @@ def merge_data(new_items, existing_items, page_metadata, domains=None):
                     merged_item[key] = value
                     enriched_count += 1
         
-        merged[loc] = merged_item
+        merged[item_id] = merged_item
     
     return list(merged.values()), new_added, enriched_count
 

@@ -1,3 +1,5 @@
+import random
+import hashlib
 import requests
 import re
 import os
@@ -56,6 +58,7 @@ NEWS_ONLY = True  # Only process news sitemaps (skip regular sitemaps)
 
 # Command line arguments
 REFRESH_CACHE = '--refresh' in sys.argv
+HISTORICAL_MODE = "--historical" in sys.argv
 EXTEND_HOURS = None
 for i, arg in enumerate(sys.argv):
     if arg == '--extend-hours' and i + 1 < len(sys.argv):
@@ -91,7 +94,7 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 
 # Optimized Nuclear Session
 session = requests.Session()
-adapter = HTTPAdapter(pool_connections=200, pool_maxsize=200, max_retries=Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504], allowed_methods=['GET', 'HEAD']))
+adapter = HTTPAdapter(pool_connections=200, pool_maxsize=200, max_retries=Retry(total=5, backoff_factor=2, status_forcelist=[429, 500, 502, 503, 504], allowed_methods=['GET', 'HEAD']))
 session.mount("http://", adapter)
 session.mount("https://", adapter)
 session.verify = False
@@ -384,6 +387,7 @@ def fetch_page_metadata(url, page_metadata_cache):
         return {}
 
 def fetch_sitemap_content(url, cutoff, metadata_cache):
+    global HISTORICAL_MODE
     # Skip relative URLs without scheme
     if not url.startswith(('http://', 'https://')):
         return ("error", (None, None))
@@ -451,7 +455,7 @@ def fetch_sitemap_content(url, cutoff, metadata_cache):
                         # Resolve relative URLs
                         if not loc.startswith(('http://', 'https://')):
                             loc = urljoin(base_url, loc)
-                        meta = {"loc": loc, "lastmod": lm_str, "title": clean_xml_text(title_m.group(1))}
+                        meta = {"id": hashlib.md5(loc.encode()).hexdigest(), "loc": loc, "lastmod": lm_str, "title": clean_xml_text(title_m.group(1))}
                         kw_m = re.search(b'<news:keywords>(.*?)</news:keywords>', data, re.I | re.S)
                         if kw_m: meta["keywords"] = clean_xml_text(kw_m.group(1))
                         pub_m = re.search(b'<news:name>(.*?)</news:name>', data, re.I | re.S)
@@ -585,8 +589,10 @@ def main():
                             all_valid_sitemaps.add(url)
                             for it in data:
                                 loc = it["loc"]
-                                if loc not in final_items or it["lastmod"] > final_items[loc].get("lastmod", ""):
-                                    final_items[loc] = it
+                                it_id = it.get("id") or hashlib.md5(loc.encode()).hexdigest()
+                                it["id"] = it_id
+                                if it_id not in final_items or it["lastmod"] > final_items[it_id].get("lastmod", ""):
+                                    final_items[it_id] = it
                     elif res_type == "skipped":
                         stats["skipped"] += 1
                     elif res_type == "error":
@@ -619,39 +625,44 @@ def main():
     except Exception as e:
         pass
 
-    items_to_enrich = [loc for loc, item in final_items.items() if not item.get('title') or not item.get('description') or not item.get('image')]
+        # Enrich items without title using page metadata (PARALLEL)
+    items_to_enrich = [item["loc"] for item_id, item in final_items.items() if not item.get('title') or not item.get('description') or not item.get('image')]
     if items_to_enrich:
-        print(f"\nFetching page metadata for {len(items_to_enrich)} items with missing metadata...")
+        random.shuffle(items_to_enrich)
+        print(f"Fetching page metadata for {len(items_to_enrich)} items with missing metadata (Parallel)...")
         sys.stdout.flush()
-        enriched = 0
-        for loc in tqdm(items_to_enrich, desc="Fetching page metadata", file=sys.stdout, mininterval=1):
-            metadata = fetch_page_metadata(loc, page_metadata_cache)
-            if metadata:
-                # Merge metadata, prioritizing existing sitemap data
-                if metadata.get('title') and not final_items[loc].get('title'):
-                    final_items[loc]['title'] = metadata['title']
-                    enriched += 1
-                if metadata.get('description') and not final_items[loc].get('description'):
-                    final_items[loc]['description'] = metadata['description']
-                if metadata.get('image') and not final_items[loc].get('image'):
-                    final_items[loc]['image'] = metadata['image']
-                if metadata.get('author') and not final_items[loc].get('author'):
-                    final_items[loc]['author'] = metadata['author']
-                if metadata.get('tags') and not final_items[loc].get('tags'):
-                    # Merge with existing keywords if available
-                    existing_keywords = final_items[loc].get('keywords', '')
-                    new_tags = ', '.join(metadata['tags'])
-                    if existing_keywords:
-                        final_items[loc]['keywords'] = f"{existing_keywords}, {new_tags}"
-                    else:
-                        final_items[loc]['keywords'] = new_tags
-                if metadata.get('published_time') and not final_items[loc].get('published_time'):
-                    final_items[loc]['published_time'] = metadata['published_time']
-                if metadata.get('section') and not final_items[loc].get('section'):
-                    final_items[loc]['section'] = metadata['section']
-                if metadata.get('site_name') and not final_items[loc].get('site_name'):
-                    final_items[loc]['site_name'] = metadata['site_name']
-        print(f"Enriched {enriched}/{len(items_to_enrich)} items with page metadata")
+        
+        def enrich_item(loc):
+            return loc, fetch_page_metadata(loc, page_metadata_cache)
+
+        with ThreadPoolExecutor(max_workers=50) as executor:
+            futures = {executor.submit(enrich_item, loc): loc for loc in items_to_enrich}
+            for f in tqdm(as_completed(futures), total=len(futures), desc="Enriching", file=sys.stdout, mininterval=1):
+                loc, metadata = f.result()
+                if metadata:
+                    it_id = hashlib.md5(loc.encode()).hexdigest()
+                    if it_id in final_items:
+                        item = final_items[it_id]
+                        if metadata.get('title') and not item.get('title'):
+                            item['title'] = metadata['title']
+                        if metadata.get('description') and not item.get('description'):
+                            item['description'] = metadata['description']
+                        if metadata.get('image') and not item.get('image'):
+                            item['image'] = metadata['image']
+                        if metadata.get('author') and not item.get('author'):
+                            item['author'] = metadata['author']
+                        if metadata.get('tags') and not item.get('tags'):
+                            existing_keywords = item.get('keywords', '')
+                            new_tags = ', '.join(metadata['tags'])
+                            item['keywords'] = f"{existing_keywords}, {new_tags}" if existing_keywords else new_tags
+                        if metadata.get('published_time') and not item.get('published_time'):
+                            item['published_time'] = metadata['published_time']
+                        if metadata.get('section') and not item.get('section'):
+                            item['section'] = metadata['section']
+                        if metadata.get('site_name') and not item.get('site_name'):
+                            item['site_name'] = metadata['site_name']
+        print(f"Enrichment completed for {len(items_to_enrich)} items.")
+
 
     # Save state
     with open(CACHE_SITEMAPS, "w") as f:
@@ -659,31 +670,7 @@ def main():
     with open(CACHE_METADATA, 'w') as f: json.dump(new_metadata, f, indent=2)
     with open(CACHE_PAGE_METADATA, 'w') as f: json.dump(page_metadata_cache, f, indent=2)
 
-    # Write output with stock_tickers
-    with open("combined_sitemap.xml", "w") as f:
-        f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-        f.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n')
-        for item in sorted(final_items.values(), key=lambda x: x.get("lastmod", ""), reverse=True):
-            f.write('  <url>\n')
-            f.write(f'    <loc>{item["loc"]}</loc>\n')
-            if item.get("lastmod"): f.write(f'    <lastmod>{item["lastmod"]}</lastmod>\n')
-            f.write('    <news:news>\n')
-            if "source" in item: f.write(f'      <news:publication><news:name>{item["source"]}</news:name><news:language>en</news:language></news:publication>\n')
-            if item.get("lastmod"):
-                f.write(f'      <news:publication_date>{item["lastmod"]}</news:publication_date>\n')
-            if item.get("title"):
-                f.write(f'      <news:title>{item["title"]}</news:title>\n')
-            if "keywords" in item: f.write(f'      <news:keywords>{item["keywords"]}</news:keywords>\n')
-            if "stock_tickers" in item: f.write(f'      <news:stock_tickers>{item["stock_tickers"]}</news:stock_tickers>\n')
-            if "description" in item: f.write(f'      <news:description>{item["description"]}</news:description>\n')
-            if "image" in item: f.write(f'      <news:image>{item["image"]}</news:image>\n')
-            if "author" in item: f.write(f'      <news:author>{item["author"]}</news:author>\n')
-            if "published_time" in item: f.write(f'      <news:published_time>{item["published_time"]}</news:published_time>\n')
-            if "section" in item: f.write(f'      <news:section>{item["section"]}</news:section>\n')
-            if "site_name" in item: f.write(f'      <news:site_name>{item["site_name"]}</news:site_name>\n')
-            f.write('    </news:news>\n')
-            f.write('  </url>\n')
-        f.write('</urlset>\n')
+    # XML creation removed as per request
 
     
     # Save latest 24h as Parquet and JSON
